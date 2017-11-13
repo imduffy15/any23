@@ -60,7 +60,7 @@ public class MicrodataParser {
      * List of tags providing the <code>src</code> property.
      */
     public static final Set<String> SRC_TAGS =  Collections.unmodifiableSet(
-            new HashSet<String>( Arrays.asList("audio", "embed", "frame", "iframe", "img", 
+            new HashSet<String>( Arrays.asList("audio", "embed", "frame", "iframe", "img",
               "source", "track", "video", "input", "layer", "script", "textarea") )
     );
 
@@ -341,9 +341,13 @@ public class MicrodataParser {
             return new ItemPropValue( getItemScope(node), ItemPropValue.Type.Nested );
         }
 
-        final ItemPropValue newItemPropValue = new ItemPropValue( node.getTextContent(), ItemPropValue.Type.Plain);
-        itemPropValues.put(node, newItemPropValue);
-        return newItemPropValue;
+        if(node.getTextContent() != null && !node.getTextContent().isEmpty()) {
+            final ItemPropValue newItemPropValue = new ItemPropValue( node.getTextContent(), ItemPropValue.Type.Plain);
+            itemPropValues.put(node, newItemPropValue);
+            return newItemPropValue;
+        }
+
+        return null;
     }
 
     /**
@@ -399,13 +403,15 @@ public class MicrodataParser {
                     manageError(mpe);
                     continue;
                 }
-                result.add(
-                        new ItemProp(
-                                DomUtils.getXPathForNode(itemPropNode),
-                                propertyName,
-                                itemPropValue
-                        )
-                );
+                if(propertyName != null && !propertyName.isEmpty() && itemPropValue != null) {
+                    result.add(
+                            new ItemProp(
+                                    DomUtils.getXPathForNode(itemPropNode),
+                                    propertyName,
+                                    itemPropValue
+                            )
+                    );
+                }
             }
         }
         return result;
